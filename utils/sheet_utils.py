@@ -12,7 +12,7 @@ SPREADSHEET_ID = "16j_H3ND9BrBGucTxv5PIyvI22P5Q7xSCHsAelQbpOyY"
 # -------------------- Google Auth --------------------
 def get_gsheet_client():
     """Authorize using OAuth token.json"""
-    creds = Credentials.from_authorized_user_file("token.json")
+    creds = Credentials.from_authorized_user_file("GOOGLE_TOKEN")
     return gspread.authorize(creds)
 
 
