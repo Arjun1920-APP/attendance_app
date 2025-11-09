@@ -4,6 +4,8 @@ from google.oauth2.credentials import Credentials
 from datetime import datetime
 import random
 import string
+import os
+import json
 
 # ✅ Google Sheet ID
 SPREADSHEET_ID = "16j_H3ND9BrBGucTxv5PIyvI22P5Q7xSCHsAelQbpOyY"
@@ -11,9 +13,34 @@ SPREADSHEET_ID = "16j_H3ND9BrBGucTxv5PIyvI22P5Q7xSCHsAelQbpOyY"
 
 # -------------------- Google Auth --------------------
 def get_gsheet_client():
-    """Authorize using OAuth token.json"""
-    creds = Credentials.from_authorized_user_file("GOOGLE_TOKEN")
-    return gspread.authorize(creds)
+    """
+    Authorizes gspread client using the OAuth token.
+    Prioritizes environment variable (for Render) and falls back to local file.
+    """
+    # 1. Check for the environment variable (Deployment)
+    token_json_string = os.environ.get("GOOGLE_TOKEN_JSON")
+    
+    if token_json_string:
+        print("Authenticating via GOOGLE_TOKEN_JSON environment variable (OAuth)...")
+        try:
+            # gspread needs a standard authorized credentials object
+            token_data = json.loads(token_json_string)
+            creds = Credentials.from_authorized_user_info(token_data)
+            return gspread.authorize(creds)
+        except Exception as e:
+            print(f"Error loading OAuth credentials from environment: {e}")
+            raise IOError("Authentication failed: Invalid JSON/Data in GOOGLE_TOKEN_JSON.")
+
+    # 2. Fallback for local testing (Development)
+    file_path = "token.json" 
+    if os.path.exists(file_path):
+        print("Authenticating via local file (token.json)...")
+        # Your original local call:
+        creds = Credentials.from_authorized_user_file(file_path)
+        return gspread.authorize(creds)
+    else:
+        # This will now only be reached if neither method works
+        raise IOError("Authentication failed: token.json not found locally, and GOOGLE_TOKEN_JSON env var is missing.")
 
 
 # -------------------- Upload Session Excel --------------------
