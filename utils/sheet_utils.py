@@ -14,25 +14,32 @@ SPREADSHEET_ID = "16j_H3ND9BrBGucTxv5PIyvI22P5Q7xSCHsAelQbpOyY"
 # -------------------- Google Auth --------------------
 def get_gsheet_client():
     """
-    Authorizes gspread client using the OAuth token.
-    Prioritizes environment variable for deployment.
+    Create a Google Sheets client using OAuth.
+    Works on both Render (via GOOGLE_TOKEN_JSON env var)
+    and locally (via token.json file).
     """
-    # 1. Check for the environment variable (Deployment)
-    token_json_string = os.environ.get("GOOGLE_TOKEN_JSON") # Use the variable name you set
-    
-    if token_json_string:
-        print("Authenticating via GOOGLE_TOKEN_JSON environment variable (OAuth)...")
-        try:
-            token_data = json.loads(token_json_string)
-            # Create credentials from the JSON string data
-            creds = Credentials.from_authorized_user_info(token_data)
-            return gspread.authorize(creds)
-        except Exception as e:
-            print(f"Deployment Error: Invalid OAuth data in environment. {e}")
-            raise IOError("Authentication failed: Invalid OAuth JSON in environment variable.")
+    creds = None
 
+    try:
+        # ✅ When running on Render — read token from environment
+        if os.getenv("GOOGLE_TOKEN_JSON"):
+            print("✅ Using OAuth token from Render environment")
+            token_info = json.loads(os.getenv("GOOGLE_TOKEN_JSON"))
+            creds = Credentials.from_authorized_user_info(token_info)
+
+        # ✅ Local fallback — use token.json file
+        else:
+            print("⚠️ Using local token.json file")
+            creds = Credentials.from_authorized_user_file("token.json")
+
+        client = gspread.authorize(creds)
+        return client
+
+    except Exception as e:
+        print("❌ Failed to load Google OAuth token:", str(e))
+        raise
     # 2. Fallback for local testing (Development)
-    file_path = "token.json" 
+    file_path = "token.json"
     
     if os.path.exists(file_path):
         print("Authenticating via local file (token.json)...")
