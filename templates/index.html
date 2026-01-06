@@ -44,6 +44,9 @@
       </div>
 
       <h5 id="questionText"></h5>
+      <p id="scaleLegend" style="font-size: 14px; color: #555; margin-bottom: 10px; display:none;">
+    Rating Scale: <span style="color:green; font-weight:bold;">5 = Excellent</span> - <span style="color:red; font-weight:bold;">1 = Poor</span>
+</p>
       <button class="option-btn" onclick="selectAnswer(0)"></button>
       <button class="option-btn" onclick="selectAnswer(1)"></button>
       <button class="option-btn" onclick="selectAnswer(2)"></button>
@@ -58,16 +61,11 @@
 let answers = {};
 let currentStep = 0;
 let questions = [
-  { q: "Content was relevant to my role", options: ["Excellent","Very Good","Good","Fair","Poor"], type: "choice" },
-  { q: "Context and Content gave me opportunities to reflect ", options: ["Excellent","Very Good","Good","Fair","Poor"], type: "choice" },
-  { q: "Facilitator was knowledgeable and had expertise on the subject", options: ["Excellent","Very Good","Good","Fair","Poor"], type: "choice" },
-  { q: "Facilitator communicated with clarity", options: ["Excellent","Very Good","Good","Fair","Poor"], type: "choice" },
-  { q: "Facilitator was able to engage with the participants and gave us ample opportunity to ask questions", options: ["Excellent","Very Good","Good","Fair","Poor"], type: "choice" },
-  { q: "Likelihood of applying what I learned", options: ["Excellent","Very Good","Good","Fair","Poor"], type: "choice" },
-  { q: "Overall satisfaction with the program", options: ["Excellent","Very Good","Good","Fair","Poor"], type: "choice" },
-  { q: "I would recommend this program to a colleague", options: ["Yes","Maybe","No"], type: "choice" },
-  { q: "Please share two takeaways from the Program which I will apply back to work", type: "text" },
-  { q: "Please provide any additional comments or suggestions for the program", type: "text" }
+  { q: "How effective was the training session?", options: ["5","4","3","2","1"], type: "choice" },
+  { q: "The content of the session was relevant for me.", options: ["5","4","3","2","1"], type: "choice" },
+  { q: "The session was well-structured and easy to follow.", options: ["5","4","3","2","1"], type: "choice" },
+  { q: "The facilitator explained concepts clearly and kept the session engaging.", options: ["5","4","3","2","1"], type: "choice" },
+  { q: "Overall comments about the session.", type: "text" }
 ];
 
 // Start Feedback - called when user clicks Next on personal info
@@ -151,6 +149,7 @@ counter.innerText = `Question ${currentStep + 1} of ${questions.length}`;
     });
 
     if (q.type === "choice") {
+  document.getElementById('scaleLegend').style.display = "block"; // <--- ADD THIS LINE
         // Show MCQ buttons
         buttons.forEach((btn, i) => {
             if (q.options[i]) {
@@ -194,6 +193,7 @@ counter.innerText = `Question ${currentStep + 1} of ${questions.length}`;
         if(textBtn) textBtn.style.display = "none";
 
     } else if (q.type === "text") {
+  document.getElementById('scaleLegend').style.display = "none"; // <--- ADD THIS LINE
         // Hide all MCQ buttons
         buttons.forEach(btn => btn.style.display = "none");
 
@@ -306,6 +306,7 @@ function submitFeedback() {
     // Hide buttons/text area and show submission message
     questionText.innerText = "Submitting Feedback... Please wait. ";
     document.querySelectorAll('.option-btn').forEach(btn => btn.style.display = "none");
+    document.getElementById('scaleLegend').style.display = "none"; // <--- ADD THIS LINE
     
     let textInput = document.getElementById('textAnswer');
     if (textInput) textInput.style.display = "none";
