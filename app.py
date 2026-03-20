@@ -260,4 +260,7 @@ def thankyou():
 # 🔹 Run App
 # ======================================================
 if __name__ == "__main__":
-    app.run(debug=True)
+    from waitress import serve
+    print("🚀 Server started. Ready for high traffic (60+ users).")
+    # threads=10 allows 10 users to be processed at the exact same time
+    serve(app, host="0.0.0.0", port=5000, threads=10, channel_timeout=60)
